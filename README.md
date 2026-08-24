@@ -23,7 +23,7 @@ regenerables con `make evidencia`.
 
 ---
 
-## Reproducción desde cero (lo que hay que ejecutar para revisar)
+## Reproducción desde cero (lo que hay que ejecutar para que pueda revisar)
 
 Requisitos: Docker + Docker Compose + GNU Make.
 
@@ -32,7 +32,7 @@ git clone <este-repo>.git && cd SGED-ADMIN-BD   # o descomprimir el ZIP
 make setup        # levanta PostgreSQL 16 y aplica TODO en orden (~3 min)
 ```
 
-`setup` ejecuta, en este orden:
+`setup` ejecutar, en este orden:
 
 1. `db/esquema-base.sql` — esquema (4 schemas, ~30 tablas)
 2. `db/seed.sql` — datos semilla reales de la app (usuario admin incluido)
