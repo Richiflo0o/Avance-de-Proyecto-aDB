@@ -1,19 +1,19 @@
                                                                  QUERY PLAN                                                                  
 ---------------------------------------------------------------------------------------------------------------------------------------------
- HashAggregate  (cost=4120.25..4124.59 rows=217 width=44) (actual rows=1 loops=1)
+ HashAggregate  (cost=4083.13..4087.47 rows=217 width=44) (actual rows=1 loops=1)
    Group Key: (date_trunc('month'::text, (fecha_pago)::timestamp with time zone))::date
    Batches: 1  Memory Usage: 40kB
    Buffers: shared hit=2593 read=30
-   ->  Bitmap Heap Scan on pagos  (cost=473.26..3905.64 rows=28615 width=9) (actual rows=30000 loops=1)
+   ->  Bitmap Heap Scan on pagos  (cost=459.93..3874.00 rows=27883 width=9) (actual rows=30000 loops=1)
          Recheck Cond: (((tipo)::text = 'MEMBRESIA'::text) AND (fecha_pago >= '2026-05-01'::date) AND (fecha_pago < '2026-06-01'::date))
          Heap Blocks: exact=2593
          Buffers: shared hit=2593 read=30
-         ->  Bitmap Index Scan on idx_pagos_tipo_fecha  (cost=0.00..466.11 rows=28615 width=0) (actual rows=30000 loops=1)
+         ->  Bitmap Index Scan on idx_pagos_tipo_fecha  (cost=0.00..452.96 rows=27883 width=0) (actual rows=30000 loops=1)
                Index Cond: (((tipo)::text = 'MEMBRESIA'::text) AND (fecha_pago >= '2026-05-01'::date) AND (fecha_pago < '2026-06-01'::date))
                Buffers: shared read=30
  Planning:
    Buffers: shared hit=183 read=1
- Planning Time: 1.036 ms
- Execution Time: 25.101 ms
+ Planning Time: 5.272 ms
+ Execution Time: 90.797 ms
 (15 rows)
 

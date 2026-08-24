@@ -44,6 +44,12 @@ make setup        # levanta PostgreSQL 16 y aplica TODO en orden (~3 min)
 Conexión: `localhost:5434`, base `sged_db`, usuario `postgres`, clave
 `postgres` (entorno de laboratorio).
 
+> **Importante:** `make setup` asume una base limpia. Si ya ejecutaste el
+> proyecto antes en este equipo, reinicia primero con `make clean`
+> (borra el contenedor y el volumen) y luego `make setup`. El script
+> `02-datos-masivos.sql` aborta de forma segura si los datos masivos ya
+> fueron cargados, para no duplicar el millón de registros.
+
 ### Comandos de apoyo durante la revisión
 
 ```bash
@@ -64,13 +70,21 @@ fórmulas determinísticas (p. ej., los 150 asistentes por sesión salen de
 no por azar: todo estudiante tiene representante, consentimiento, pagos,
 asistencias y evaluaciones.
 
-**Optimización** (`EXPLAIN (ANALYZE, BUFFERS)` antes vs. después):
+**Optimización** (`EXPLAIN (ANALYZE, BUFFERS)` antes vs. después).
+Los milisegundos varían entre ejecuciones según caché/IO del host; la señal
+robusta es la caída de *buffers* leídos a disco. Valores de la última
+regeneración automática (`make evidencia`, ver
+`docs/admin/evidencias/caso-0-resumen-comparativo.txt`):
 
 | Caso | Consulta | Antes | Después | Técnica |
 |---|---|---|---|---|
-| A | Ausencias/tardanzas sobre 900k asistencias | ~65 ms / 11,113 páginas | **~8 ms / 107 páginas** | índice `estado` → Index Only Scan |
-| B | Búsqueda `ILIKE '%gar%'` de personas | ~44 ms | **~6 ms** | extensión `pg_trgm` + índice GIN |
-| C | Reporte financiero mensual | ~47 ms | **~20 ms** | índice compuesto `(tipo, fecha_pago)` |
+| A | Ausencias/tardanzas sobre 900k asistencias | 148.6 ms / 11,111 páginas | **22.9 ms / 102 páginas** | índice `estado` → Index Only Scan |
+| B | Búsqueda `ILIKE '%gar%'` de personas | 70.6 ms | **14.8 ms** | extensión `pg_trgm` + índice GIN |
+| C | Reporte financiero mensual | 111.4 ms / 2,715 páginas leídas | **90.8 ms / 30 páginas leídas** | índice compuesto `(tipo, fecha_pago)` |
+
+El caso C mejora sobre todo en I/O (buffers en disco 2,715 → 30) más que en
+tiempo de pared, porque tras la carga el conjunto de datos ya está en caché;
+en un servidor con presión de memoria la brecha de latencia se amplía.
 
 Nota honesta documentada también en las evidencias: para el agregado SIN
 filtro (GROUP BY del total de filas) el planificador sigue eligiendo Seq

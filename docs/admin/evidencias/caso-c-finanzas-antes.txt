@@ -1,29 +1,29 @@
                                                                      QUERY PLAN                                                                      
 -----------------------------------------------------------------------------------------------------------------------------------------------------
- Finalize GroupAggregate  (cost=6252.70..6284.17 rows=217 width=44) (actual rows=1 loops=1)
+ Finalize GroupAggregate  (cost=6238.41..6269.87 rows=217 width=44) (actual rows=1 loops=1)
    Group Key: ((date_trunc('month'::text, (fecha_pago)::timestamp with time zone))::date)
-   Buffers: shared hit=313 read=2412
-   ->  Gather Merge  (cost=6252.70..6277.66 rows=217 width=44) (actual rows=2 loops=1)
+   Buffers: shared hit=10 read=2715
+   ->  Gather Merge  (cost=6238.41..6263.36 rows=217 width=44) (actual rows=2 loops=1)
          Workers Planned: 1
          Workers Launched: 1
-         Buffers: shared hit=313 read=2412
-         ->  Sort  (cost=5252.69..5253.23 rows=217 width=44) (actual rows=1 loops=2)
+         Buffers: shared hit=10 read=2715
+         ->  Sort  (cost=5238.40..5238.94 rows=217 width=44) (actual rows=1 loops=2)
                Sort Key: ((date_trunc('month'::text, (fecha_pago)::timestamp with time zone))::date)
                Sort Method: quicksort  Memory: 25kB
-               Buffers: shared hit=313 read=2412
+               Buffers: shared hit=10 read=2715
                Worker 0:  Sort Method: quicksort  Memory: 25kB
-               ->  Partial HashAggregate  (cost=5239.93..5244.27 rows=217 width=44) (actual rows=1 loops=2)
+               ->  Partial HashAggregate  (cost=5225.64..5229.98 rows=217 width=44) (actual rows=1 loops=2)
                      Group Key: (date_trunc('month'::text, (fecha_pago)::timestamp with time zone))::date
                      Batches: 1  Memory Usage: 40kB
-                     Buffers: shared hit=305 read=2412
+                     Buffers: shared hit=2 read=2715
                      Worker 0:  Batches: 1  Memory Usage: 40kB
-                     ->  Parallel Seq Scan on pagos  (cost=0.00..5110.82 rows=17215 width=9) (actual rows=15000 loops=2)
+                     ->  Parallel Seq Scan on pagos  (cost=0.00..5103.67 rows=16262 width=9) (actual rows=15000 loops=2)
                            Filter: ((fecha_pago >= '2026-05-01'::date) AND (fecha_pago < '2026-06-01'::date) AND ((tipo)::text = 'MEMBRESIA'::text))
                            Rows Removed by Filter: 95000
-                           Buffers: shared hit=305 read=2412
+                           Buffers: shared hit=2 read=2715
  Planning:
-   Buffers: shared hit=155 read=4
- Planning Time: 0.559 ms
- Execution Time: 37.056 ms
+   Buffers: shared hit=158 read=1
+ Planning Time: 0.664 ms
+ Execution Time: 111.377 ms
 (25 rows)
 

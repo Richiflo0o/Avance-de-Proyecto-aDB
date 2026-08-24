@@ -1,5 +1,5 @@
 EVIDENCIA: gestión de usuarios, roles y privilegios a nivel motor
-Generado: 2026-08-23 23:34:33
+Generado: 2026-08-24 09:09:54
 ==============================================================
 
 --- Roles y usuarios de base de datos creados ---
@@ -50,10 +50,10 @@ ERROR:  permission denied for table pagos
 SET
        resultado       | count 
 -----------------------+-------
- OK: lectura auditoria |     0
+ OK: lectura auditoria |     2
 (1 row)
 
 RESET
-ERROR:  permission denied for table personas
 SET
+ERROR:  permission denied for table personas
 >> COMPORTAMIENTO ESPERADO: permission denied

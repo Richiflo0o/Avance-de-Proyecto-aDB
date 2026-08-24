@@ -1,5 +1,5 @@
 EVIDENCIA: volumen de datos (requisito >= 1,000,000)
-Generado: 2026-08-23 23:34:32  |  Motor: PostgreSQL 16 (docker: sged_admin_bd)
+Generado: 2026-08-24 09:09:53  |  Motor: PostgreSQL 16 (docker: sged_admin_bd)
 ==============================================================
                  t                  | count  
 ------------------------------------+--------
@@ -7,7 +7,7 @@ Generado: 2026-08-23 23:34:32  |  Motor: PostgreSQL 16 (docker: sged_admin_bd)
  academico.pagos                    | 220000
  academico.notificaciones           | 150000
  deportivo.detalle_evaluacion       |  75000
- seguridad.personas                 |  72221
+ seguridad.personas                 |  72222
  seguridad.usuarios                 |  72218
  academico.estudiantes              |  60008
  academico.representante_estudiante |  60002
@@ -15,6 +15,6 @@ Generado: 2026-08-23 23:34:32  |  Motor: PostgreSQL 16 (docker: sged_admin_bd)
  deportivo.sesiones_entrenamiento   |   6000
 (10 rows)
 
-TOTAL DEL SISTEMA: 1855925 registros
+TOTAL DEL SISTEMA: 1855926 registros
 
 VEREDICTO: >= 1,000,000 registros -> CUMPLE

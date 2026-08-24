@@ -96,6 +96,12 @@ END $$;
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON DATABASE sged_db FROM PUBLIC;
 
+-- Cada rol-grupo necesita CONNECT para abrir sesión (se revocó de PUBLIC).
+-- El privilegio se hereda a los usuarios LOGIN miembros del rol.
+GRANT CONNECT ON DATABASE sged_db TO rol_sged_admin, rol_sged_recepcion,
+                                      rol_sged_entrenador, rol_sged_consulta,
+                                      rol_sged_auditor, rol_sged_backup;
+
 -- Nadie excepto el propietario toca las tablas de forma implícita:
 REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA seguridad, academico, deportivo, inventario FROM PUBLIC;
 REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA seguridad, academico, deportivo, inventario FROM PUBLIC;
