@@ -1,0 +1,15 @@
+                                                                QUERY PLAN                                                                
+------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=0.42..2920.75 rows=4 width=16) (actual rows=2 loops=1)
+   Group Key: estado
+   Buffers: shared hit=6 read=102
+   ->  Index Only Scan using idx_asistencias_estado on asistencias  (cost=0.42..2355.81 rows=112980 width=8) (actual rows=117000 loops=1)
+         Index Cond: (estado = ANY ('{AUSENTE,TARDE}'::text[]))
+         Heap Fetches: 6
+         Buffers: shared hit=6 read=102
+ Planning:
+   Buffers: shared hit=169
+ Planning Time: 0.497 ms
+ Execution Time: 9.297 ms
+(11 rows)
+

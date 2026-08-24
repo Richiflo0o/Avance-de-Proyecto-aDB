@@ -1,0 +1,32 @@
+EVIDENCIA: ciclo de respaldo y restauración
+Generado: 2026-08-23 23:34:39
+==============================================================
+
+--- 1. Respaldo lógico completo (pg_dump -Fc) ---
+[2026-08-23 23:34:39] INICIO respaldo completo de sged_db
+[2026-08-23 23:34:42] OK     dump verificado: /home/ricardo/Documentos/GitHub/SGED-ADMIN-BD/db/admin/backups/dumps/sged_db_completo_20260823_233439.dump (15 MB)
+[2026-08-23 23:34:42] INFO   retención aplicada: 0 dump(s) mayor(es) a 7 días eliminado(s)
+[2026-08-23 23:34:42] FIN    respaldo completo finalizado
+/home/ricardo/Documentos/GitHub/SGED-ADMIN-BD/db/admin/backups/dumps/sged_db_completo_20260823_233439.dump
+
+--- 2. Restauración verificada en base de prueba ---
+[2026-08-23 23:34:42] INICIO restauración de sged_db_completo_20260823_233439.dump hacia sged_restaurada
+NOTICE:  database "sged_restaurada" does not exist, skipping
+[2026-08-23 23:34:51] INFO   ejecutando verificación post-restauración...
+[2026-08-23 23:34:51] INFO   conteos tras restaurar:
+estudiantes|60008
+personas|72221
+usuarios|72218
+pagos|220000
+asistencias|900000
+roles_bd|6
+auditoria_dml|1
+[2026-08-23 23:34:51] OK     restauración verificada en la base 'sged_restaurada'
+[2026-08-23 23:34:51] INFO   para promoverla manualmente (ventana de mantenimiento):
+        DROP DATABASE sged_db; ALTER DATABASE sged_restaurada RENAME TO sged_db;
+sged_restaurada
+
+--- 3. Limpieza de la base de prueba ---
+Base sged_restaurada eliminada tras validar.
+
+Plan completo: db/admin/backups/PLAN-RESPALDOS.md

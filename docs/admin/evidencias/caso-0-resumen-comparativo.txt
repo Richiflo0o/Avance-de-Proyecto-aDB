@@ -1,0 +1,11 @@
+RESUMEN comparativo antes/después (tiempo de ejecución real)
+Generado: 2026-08-23 23:36:24
+==============================================================
+caso-a-dashboard antes      65.098 ms   (Buffers: shared hit=22 read=11113)
+caso-a-dashboard despues     9.297 ms   (Buffers: shared hit=6 read=102)
+caso-b-busqueda antes      32.936 ms   (Buffers: shared hit=3 read=1176)
+caso-b-busqueda despues     7.124 ms   (Buffers: shared hit=989)
+caso-c-finanzas antes      37.056 ms   (Buffers: shared hit=313 read=2412)
+caso-c-finanzas despues    25.101 ms   (Buffers: shared hit=2593 read=30)
+
+Planes completos en docs/admin/evidencias/caso-*-{antes,despues}.txt

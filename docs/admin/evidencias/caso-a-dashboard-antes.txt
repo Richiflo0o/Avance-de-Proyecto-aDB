@@ -1,0 +1,31 @@
+                                                           QUERY PLAN                                                           
+--------------------------------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=17040.04..17041.06 rows=4 width=16) (actual rows=2 loops=1)
+   Group Key: estado
+   Buffers: shared hit=22 read=11113
+   ->  Gather Merge  (cost=17040.04..17040.98 rows=8 width=16) (actual rows=6 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=22 read=11113
+         ->  Sort  (cost=16040.02..16040.03 rows=4 width=16) (actual rows=2 loops=3)
+               Sort Key: estado
+               Sort Method: quicksort  Memory: 25kB
+               Buffers: shared hit=22 read=11113
+               Worker 0:  Sort Method: quicksort  Memory: 25kB
+               Worker 1:  Sort Method: quicksort  Memory: 25kB
+               ->  Partial HashAggregate  (cost=16039.94..16039.98 rows=4 width=16) (actual rows=2 loops=3)
+                     Group Key: estado
+                     Batches: 1  Memory Usage: 24kB
+                     Buffers: shared hit=6 read=11113
+                     Worker 0:  Batches: 1  Memory Usage: 24kB
+                     Worker 1:  Batches: 1  Memory Usage: 24kB
+                     ->  Parallel Seq Scan on asistencias  (cost=0.00..15800.50 rows=47888 width=8) (actual rows=39000 loops=3)
+                           Filter: ((estado)::text = ANY ('{AUSENTE,TARDE}'::text[]))
+                           Rows Removed by Filter: 261000
+                           Buffers: shared hit=6 read=11113
+ Planning:
+   Buffers: shared hit=150 read=3 dirtied=1
+ Planning Time: 0.461 ms
+ Execution Time: 65.098 ms
+(27 rows)
+

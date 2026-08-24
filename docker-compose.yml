@@ -1,0 +1,25 @@
+# Administración de Bases de Datos — SGED (proyecto de curso)
+# Solo PostgreSQL 16: la tarea se revisa contra el motor, no contra la app.
+# Puerto 5434 en el host para no chocar con otra instancia local (5433/5432).
+services:
+  postgres:
+    image: postgres@sha256:33f923b05f64ca54ac4401c01126a6b92afe839a0aa0a52bc5aeb5cc958e5f20
+    container_name: sged_admin_bd
+    environment:
+      POSTGRES_DB: sged_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: America/Guayaquil
+      PGTZ: America/Guayaquil
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata_admin_bd:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sged_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata_admin_bd:

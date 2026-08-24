@@ -1,0 +1,21 @@
+                                                             QUERY PLAN                                                             
+------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1466.17..1466.22 rows=20 width=23) (actual rows=20 loops=1)
+   Buffers: shared hit=989
+   ->  Sort  (cost=1466.17..1481.34 rows=6067 width=23) (actual rows=20 loops=1)
+         Sort Key: apellido, nombre
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=989
+         ->  Bitmap Heap Scan on personas  (cost=52.89..1304.73 rows=6067 width=23) (actual rows=6000 loops=1)
+               Recheck Cond: ((apellido)::text ~~* '%gar%'::text)
+               Heap Blocks: exact=982
+               Buffers: shared hit=986
+               ->  Bitmap Index Scan on idx_personas_apellido_trgm  (cost=0.00..51.38 rows=6067 width=0) (actual rows=6000 loops=1)
+                     Index Cond: ((apellido)::text ~~* '%gar%'::text)
+                     Buffers: shared hit=4
+ Planning:
+   Buffers: shared hit=141
+ Planning Time: 1.160 ms
+ Execution Time: 7.124 ms
+(17 rows)
+

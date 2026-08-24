@@ -1,0 +1,36 @@
+EVIDENCIA: auditoría y trazabilidad a nivel motor
+Generado: 2026-08-23 23:34:34
+==============================================================
+
+--- 1. Operación controlada: anulación de un pago ---
+UPDATE 1
+
+--- 2. Rastro capturado por el trigger (antes/después JSONB) ---
+            fecha             | usuario_bd | operacion |     objeto      | registro_id |                                                                  cambios                                                                  
+------------------------------+------------+-----------+-----------------+-------------+-------------------------------------------------------------------------------------------------------------------------------------------
+ 2026-08-23 23:34:34.87849-05 | postgres   | UPDATE    | academico.pagos | 1           | anulado_en: null -> "2026-08-23T23:34:34.87849-05:00"; motivo_anulacion: null -> "simulacro evidencia"; anulado_por_id_usuario: null -> 1
+(1 row)
+
+
+--- 3. Auditoría DDL: cambios de esquema registrados ---
+             fecha             | usuario_bd |     comando     |                                      objeto                                      
+-------------------------------+------------+-----------------+----------------------------------------------------------------------------------
+ 2026-08-23 23:34:24.559541-05 | postgres   | CREATE INDEX    | academico.idx_pagos_tipo_fecha
+ 2026-08-23 23:34:24.157533-05 | postgres   | CREATE INDEX    | seguridad.idx_personas_apellido_trgm
+ 2026-08-23 23:34:23.351264-05 | postgres   | CREATE INDEX    | deportivo.idx_asistencias_estado
+ 2026-08-23 23:34:23.098768-05 | postgres   | CREATE VIEW     | seguridad.v_auditoria_reciente
+ 2026-08-23 23:34:23.098768-05 | postgres   | CREATE FUNCTION | seguridad.fn_historial_registro(pg_catalog.text,pg_catalog.text,pg_catalog.text)
+(5 rows)
+
+
+--- 4. Antimanipulación: AUDITOR intenta borrar el registro (debe FALLAR) ---
+ERROR:  permission denied for table auditoria_dml
+SET
+>> COMPORTAMIENTO ESPERADO: permission denied
+
+--- 5. Historial completo de un registro puntual ---
+            fecha             | usuario_bd | operacion |                                                                                                                                                               datos_anteriores                                                                                                                                                                |                                                                                                                                                                                      datos_nuevos                                                                                                                                                                                       
+------------------------------+------------+-----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 2026-08-23 23:34:34.87849-05 | postgres   | UPDATE    | {"mes": 1, "anio": 2026, "tipo": "MEMBRESIA", "monto": 35.00, "id_pago": 1, "anulado_en": null, "created_at": "2026-08-23T23:33:46.455124-05:00", "fecha_pago": "2026-01-02", "updated_at": "2026-08-23T23:33:46.455124-05:00", "id_estudiante": 9, "motivo_anulacion": null, "anulado_por_id_usuario": null, "registrado_por_id_usuario": 1} | {"mes": 1, "anio": 2026, "tipo": "MEMBRESIA", "monto": 35.00, "id_pago": 1, "anulado_en": "2026-08-23T23:34:34.87849-05:00", "created_at": "2026-08-23T23:33:46.455124-05:00", "fecha_pago": "2026-01-02", "updated_at": "2026-08-23T23:34:34.87849-05:00", "id_estudiante": 9, "motivo_anulacion": "simulacro evidencia", "anulado_por_id_usuario": 1, "registrado_por_id_usuario": 1}
+(1 row)
+

@@ -1,0 +1,59 @@
+EVIDENCIA: gestión de usuarios, roles y privilegios a nivel motor
+Generado: 2026-08-23 23:34:33
+==============================================================
+
+--- Roles y usuarios de base de datos creados ---
+         rol         | login |       hereda_de       
+---------------------+-------+-----------------------
+ rol_sged_admin      | f     | {}
+ rol_sged_auditor    | f     | {}
+ rol_sged_backup     | f     | {}
+ rol_sged_consulta   | f     | {}
+ rol_sged_entrenador | f     | {}
+ rol_sged_recepcion  | f     | {}
+ u_sged_admin        | t     | {rol_sged_admin}
+ u_sged_auditor      | t     | {rol_sged_auditor}
+ u_sged_backup       | t     | {rol_sged_backup}
+ u_sged_consulta     | t     | {rol_sged_consulta}
+ u_sged_entrenador   | t     | {rol_sged_entrenador}
+ u_sged_recepcion    | t     | {rol_sged_recepcion}
+(12 rows)
+
+
+--- Prueba 1: RECEPCION lee estudiantes (permitido) ---
+SET
+      resultado       | estudiantes 
+----------------------+-------------
+ OK: SELECT ejecutado |       60008
+(1 row)
+
+RESET
+
+--- Prueba 2: RECEPCION intenta DELETE en pagos (debe FALLAR) ---
+ERROR:  permission denied for table pagos
+SET
+>> COMPORTAMIENTO ESPERADO: permission denied
+
+--- Prueba 3: ENTRENADOR actualiza una asistencia (permitido) ---
+SET
+BEGIN
+UPDATE 1
+ROLLBACK
+RESET
+
+--- Prueba 4: CONSULTA intenta INSERT en pagos (debe FALLAR) ---
+SET
+ERROR:  permission denied for table pagos
+>> COMPORTAMIENTO ESPERADO: permission denied
+
+--- Prueba 5: AUDITOR lee auditoría pero NO personas (debe FALLAR) ---
+SET
+       resultado       | count 
+-----------------------+-------
+ OK: lectura auditoria |     0
+(1 row)
+
+RESET
+ERROR:  permission denied for table personas
+SET
+>> COMPORTAMIENTO ESPERADO: permission denied
