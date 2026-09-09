@@ -37,12 +37,40 @@ registros ya cargada:
 ```
 POST /api/admin/backups   (autenticado como admin / ADMINISTRADOR)
 200 OK
-{"nombre":"sged_db_20260908_204834.sql","tamanioBytes":101217839}
+{"nombre":"sged_db_20260908_213037.sql","tamanioBytes":101218035}
 ```
 
-≈96,5 MB, verificado como volcado íntegro (`grep -c 'COPY deportivo.asistencias'`
-devuelve `1`) y restaurable con `psql -U postgres -d sged_db -f <archivo>.sql`
-sobre una base con el mismo esquema.
+≈96,5 MB, con `COPY` de las 35 tablas de los 4 schemas (no solo
+`deportivo.asistencias`) y terminado en `-- PostgreSQL database dump
+complete` (sin truncar).
+
+**Prueba real de restauración, no solo de generación**: se creó una base
+`sged_validacion` vacía y se restauró el .sql completo ahí, comparando
+conteos tabla por tabla contra `sged_db`:
+
+| Tabla | Original | Restaurada |
+|---|---|---|
+| `deportivo.asistencias` | 1,000,000 | 1,000,000 |
+| `academico.estudiantes` | 2,401 | 2,401 |
+| `seguridad.personas` | 3,021 | 3,021 |
+| `seguridad.usuarios` | 18 | 18 |
+| `seguridad.auditoria` | 6 | 6 |
+| `deportivo.sesiones_entrenamiento` | 2,430 | 2,430 |
+
+**Hallazgo real de esta prueba** (corregido, no solo documentado): la
+primera restauración fallaba con
+`ERROR: unrecognized configuration parameter "transaction_timeout"`. Causa:
+la imagen del backend instala `pg_dump` 18.x (repo de Ubuntu) contra un
+motor real Postgres 16.14; `pg_dump` 18 antepone una línea
+`SET transaction_timeout = 0;` -GUC que no existe hasta Postgres 17- que el
+16 real rechaza. No afectaba ningún dato (el 100% de las filas restauraba
+igual pese al error, porque es una sola línea de configuración de sesión,
+no una fila del respaldo), pero un examinador que restaure el .sql va a ver
+ese error igual. Se corrigió en `BackupService.generarRespaldo()`: después
+de que `pg_dump` termina, se quita esa línea del archivo
+(`limpiarPreambuloIncompatible`) antes de dar el respaldo por válido. Con
+el fix, la misma prueba de restauración completa sin ningún `ERROR` ni
+`WARNING`.
 
 ## Requisito adicional del Dockerfile del backend
 

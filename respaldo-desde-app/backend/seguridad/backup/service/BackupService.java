@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,14 +25,25 @@ import java.util.stream.Stream;
  * una opción dentro del sistema para generar o gestionar respaldos").
  *
  * Estrategia: invocar {@code pg_dump} como proceso externo (el binario del
- * cliente de PostgreSQL 16 se instala en la imagen del backend, ver
- * Dockerfile) contra el servicio {@code postgres} de la red interna de
- * Docker Compose -host, puerto y nombre de base fijos porque los define esa
- * red, igual que hace JwtAuthenticationFilter con sus constantes de cookie-
- * y guardar el volcado en texto plano (formato -Fp) en un directorio
- * dedicado dentro del contenedor del backend. No requiere tocar el
- * datasource JPA de la aplicación: es un proceso aparte, de solo lectura
- * sobre la base real.
+ * cliente de PostgreSQL se instala en la imagen del backend, ver Dockerfile
+ * -el repo de Ubuntu de esa imagen trae la 18.x, no la 16 del motor real-)
+ * contra el servicio {@code postgres} de la red interna de Docker Compose
+ * -host, puerto y nombre de base fijos porque los define esa red, igual que
+ * hace JwtAuthenticationFilter con sus constantes de cookie- y guardar el
+ * volcado en texto plano (formato -Fp) en un directorio dedicado dentro del
+ * contenedor del backend. No requiere tocar el datasource JPA de la
+ * aplicación: es un proceso aparte, de solo lectura sobre la base real.
+ *
+ * <p>Ese salto de version cliente/servidor (18 contra 16.14) tiene una
+ * consecuencia real y verificada: pg_dump 18 agrega al volcado una linea
+ * {@code SET transaction_timeout = 0;} -GUC que existe recien desde
+ * PostgreSQL 17- que el motor 16 real rechaza con
+ * "ERROR: unrecognized configuration parameter" al restaurar. Se detectó
+ * restaurando un respaldo real completo contra una base de prueba limpia y
+ * comparando conteos tabla por tabla (100% coincidentes pese al error: es
+ * una sola linea de configuración de sesión, no un dato). {@link
+ * #limpiarPreambuloIncompatible(Path)} la quita antes de dar el respaldo
+ * por válido.</p>
  */
 @Slf4j
 @Service
@@ -97,6 +109,8 @@ public class BackupService {
                         "No se pudo generar el respaldo (pg_dump código " + codigoSalida + ")");
             }
 
+            limpiarPreambuloIncompatible(destino);
+
             long tamanioBytes = Files.size(destino);
             log.info("Respaldo generado: {} ({} bytes)", nombreArchivo, tamanioBytes);
             return nombreArchivo;
@@ -137,6 +151,31 @@ public class BackupService {
             throw new IllegalArgumentException("Respaldo no encontrado: " + nombreArchivo);
         }
         return ruta;
+    }
+
+    /**
+     * Quita del volcado la línea {@code SET transaction_timeout = 0;} que
+     * pg_dump 18 antepone (GUC desde PostgreSQL 17) y que Postgres 16, el
+     * motor real, no reconoce al restaurar. Es una línea de configuración de
+     * sesión que agrega pg_dump por su cuenta -no un dato del usuario- así
+     * que quitarla no toca ninguna fila del respaldo. Se recorre el archivo
+     * en streaming (no se carga en memoria) porque el volcado real supera
+     * los 100 MB.
+     */
+    private void limpiarPreambuloIncompatible(Path archivo) throws IOException {
+        Path temporal = archivo.resolveSibling(archivo.getFileName() + ".tmp");
+        try (var lector = Files.newBufferedReader(archivo);
+             var escritor = Files.newBufferedWriter(temporal)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
+                if (linea.startsWith("SET transaction_timeout")) {
+                    continue;
+                }
+                escritor.write(linea);
+                escritor.newLine();
+            }
+        }
+        Files.move(temporal, archivo, StandardCopyOption.REPLACE_EXISTING);
     }
 
     private RespaldoInfo aRespaldoInfo(Path p) {
